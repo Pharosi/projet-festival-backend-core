@@ -6,11 +6,27 @@ API backend permettant de gérer les utilisateurs, les événements, les crénea
 
 - Node.js 22 ou une version plus récente
 - npm
+- Docker Desktop
 
 ## Installation
 
+Installer les dépendances :
+
 ```bash
 npm install
+```
+
+Créer le fichier de configuration locale :
+
+```bash
+cp .env.example .env
+```
+
+Démarrer PostgreSQL et appliquer les migrations :
+
+```bash
+npm run db:up
+npm run db:migrate
 ```
 
 ## Développement
@@ -19,7 +35,13 @@ npm install
 npm run dev
 ```
 
-L'API est accessible à l'adresse `http://localhost:3000`. La route de vérification de son état est `GET /health`.
+L'API est accessible à l'adresse `http://localhost:3000`.
+
+Pour arrêter PostgreSQL :
+
+```bash
+npm run db:down
+```
 
 ## Tests
 
@@ -27,23 +49,69 @@ L'API est accessible à l'adresse `http://localhost:3000`. La route de vérifica
 npm test
 ```
 
+Pour vérifier la compilation TypeScript :
+
+```bash
+npm run build
+```
+
+## Routes disponibles
+
+### Vérifier l'état de l'API
+
+```http
+GET /health
+```
+
+### Inscrire un utilisateur
+
+```http
+POST /users/register
+Content-Type: application/json
+```
+
+Corps de la requête :
+
+```json
+{
+  "name": "Camille Dupont",
+  "email": "camille@example.com",
+  "password": "mot-de-passe-securise"
+}
+```
+
+Réponse `201 Created` :
+
+```json
+{
+  "user": {
+    "id": "c40ee0a5-03c7-4866-b163-8a44d8d60c66",
+    "name": "Camille Dupont",
+    "email": "camille@example.com",
+    "role": "VISITOR",
+    "createdAt": "2026-06-29T15:27:42.227Z"
+  }
+}
+```
+
+Le mot de passe et son hash ne sont jamais présents dans la réponse.
+
 ## Clean Architecture
 
-Le code source est organisé en plusieurs couches : domaine, application, infrastructure, interface HTTP et composition de l'application. Les règles métier restent indépendantes d'Express, de Prisma et des autres outils externes.
+Le code source est organisé en plusieurs couches :
 
-La première fonctionnalité implémentée est l'inscription d'un utilisateur. Elle comprend :
+- `domain` : entités, règles métier et contrats des repositories ;
+- `application` : cas d'usage et ports nécessaires à leur fonctionnement ;
+- `infrastructure` : Prisma, PostgreSQL, bcrypt et implémentations techniques ;
+- `interfaces` : controllers, routes et middlewares HTTP ;
+- `main` : création de l'application et assemblage des dépendances.
 
-- une entité `User` indépendante du framework ;
-- un contrat `UserRepository` défini dans le domaine ;
-- un port `PasswordHasher` défini dans la couche application ;
-- un cas d'usage `RegisterUser` ;
-- un repository en mémoire utilisé pour les tests ;
-- des tests unitaires des règles métier.
+La fonctionnalité d'inscription comprend une entité `User`, le contrat `UserRepository`, le port `PasswordHasher` et le cas d'usage `RegisterUser`. Le cas d'usage ne dépend pas directement de Prisma ou de bcrypt. Ces outils sont injectés au démarrage de l'application.
 
-Le cas d'usage dépend uniquement de contrats. Les futures implémentations avec Prisma et bcrypt seront placées dans l'infrastructure.
+Le repository en mémoire permet de tester les règles sans base de données. `PrismaUserRepository` fournit l'implémentation réelle avec PostgreSQL.
 
 ## Authentification avancée
 
-Cette section présentera l'authentification JWT, le stockage sécurisé des mots de passe, les rôles et les permissions au fur et à mesure de leur implémentation.
+L'inscription utilise bcrypt avec 12 tours de salage. L'adresse e-mail doit être unique, le mot de passe doit contenir au moins huit caractères et le rôle initial est `VISITOR`.
 
-À cette étape, le cas d'usage d'inscription refuse les adresses e-mail déjà utilisées, impose une longueur minimale au mot de passe et utilise une abstraction de hachage. L'implémentation réelle avec bcrypt sera ajoutée avec l'infrastructure de sécurité.
+Les prochaines étapes ajouteront la connexion, les tokens JWT, la protection des routes et le contrôle des rôles et permissions.
