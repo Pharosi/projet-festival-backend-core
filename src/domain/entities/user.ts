@@ -17,6 +17,15 @@ type CreateUserProps = {
   role?: UserRole;
 };
 
+type RestoreUserProps = {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: UserRole;
+  createdAt: Date;
+};
+
 export class User {
   private constructor(
     public readonly id: string,
@@ -46,6 +55,17 @@ export class User {
       props.passwordHash,
       props.role ?? UserRole.VISITOR,
       new Date(),
+    );
+  }
+
+  static restore(props: RestoreUserProps): User {
+    return new User(
+      props.id,
+      props.name,
+      props.email,
+      props.passwordHash,
+      props.role,
+      props.createdAt,
     );
   }
 
