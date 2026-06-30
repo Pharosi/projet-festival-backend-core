@@ -74,8 +74,8 @@ Corps de la requête :
 
 ```json
 {
-  "name": "Camille Dupont",
-  "email": "camille@example.com",
+  "name": "Raphael PAES",
+  "email": "raphael.paes@example.com",
   "password": "mot-de-passe-securise"
 }
 ```
@@ -86,8 +86,8 @@ Réponse `201 Created` :
 {
   "user": {
     "id": "c40ee0a5-03c7-4866-b163-8a44d8d60c66",
-    "name": "Camille Dupont",
-    "email": "camille@example.com",
+    "name": "Raphael PAES",
+    "email": "raphael.paes@example.com",
     "role": "VISITOR",
     "createdAt": "2026-06-29T15:27:42.227Z"
   }
@@ -95,6 +95,38 @@ Réponse `201 Created` :
 ```
 
 Le mot de passe et son hash ne sont jamais présents dans la réponse.
+
+### Se connecter
+
+```http
+POST /auth/login
+Content-Type: application/json
+```
+
+Corps de la requête :
+
+```json
+{
+  "email": "raphael.paes@example.com",
+  "password": "mot-de-passe-securise"
+}
+```
+
+Réponse `200 OK` :
+
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": "c40ee0a5-03c7-4866-b163-8a44d8d60c66",
+    "name": "Raphael PAES",
+    "email": "raphael.paes@example.com",
+    "role": "VISITOR"
+  }
+}
+```
+
+Une adresse inconnue ou un mot de passe incorrect produit la même réponse `401 Unauthorized`. Cette règle évite de révéler si un compte existe.
 
 ## Clean Architecture
 
@@ -114,4 +146,6 @@ Le repository en mémoire permet de tester les règles sans base de données. `P
 
 L'inscription utilise bcrypt avec 12 tours de salage. L'adresse e-mail doit être unique, le mot de passe doit contenir au moins huit caractères et le rôle initial est `VISITOR`.
 
-Les prochaines étapes ajouteront la connexion, les tokens JWT, la protection des routes et le contrôle des rôles et permissions.
+La connexion compare le mot de passe avec le hash enregistré et génère un JWT signé avec l'algorithme `HS256`. Le token expire après une heure et contient uniquement l'identifiant de l'utilisateur dans `sub` et son rôle. Le secret et la durée sont configurés avec `JWT_SECRET` et `JWT_EXPIRES_IN`.
+
+Les prochaines étapes ajouteront la vérification du JWT dans les requêtes, la protection des routes et le contrôle des rôles et permissions.

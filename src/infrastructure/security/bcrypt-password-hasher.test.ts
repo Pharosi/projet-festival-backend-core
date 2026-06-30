@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import { describe, expect, it } from 'vitest';
 
 import { BcryptPasswordHasher } from './bcrypt-password-hasher.js';
@@ -11,6 +10,9 @@ describe('BcryptPasswordHasher', () => {
     const hash = await passwordHasher.hash(password);
 
     expect(hash).not.toBe(password);
-    await expect(bcrypt.compare(password, hash)).resolves.toBe(true);
+    await expect(passwordHasher.compare(password, hash)).resolves.toBe(true);
+    await expect(
+      passwordHasher.compare('incorrect-password', hash),
+    ).resolves.toBe(false);
   });
 });

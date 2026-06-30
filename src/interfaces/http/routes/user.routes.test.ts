@@ -11,6 +11,10 @@ class FakePasswordHasher implements PasswordHasher {
   async hash(password: string): Promise<string> {
     return `hashed:${password}`;
   }
+
+  async compare(password: string, passwordHash: string): Promise<boolean> {
+    return passwordHash === `hashed:${password}`;
+  }
 }
 
 function createTestApp() {
@@ -27,15 +31,15 @@ describe('POST /users/register', () => {
     const response = await request(createTestApp())
       .post('/users/register')
       .send({
-        name: 'Camille Dupont',
-        email: 'camille@example.com',
+        name: 'Raphael PAES',
+        email: 'raphael.paes@example.com',
         password: 'secure-password',
       });
 
     expect(response.status).toBe(201);
     expect(response.body.user).toMatchObject({
-      name: 'Camille Dupont',
-      email: 'camille@example.com',
+      name: 'Raphael PAES',
+      email: 'raphael.paes@example.com',
       role: 'VISITOR',
     });
     expect(response.body.user).not.toHaveProperty('password');
@@ -45,8 +49,8 @@ describe('POST /users/register', () => {
   it('returns 409 when the email is already in use', async () => {
     const app = createTestApp();
     const input = {
-      name: 'Camille Dupont',
-      email: 'camille@example.com',
+      name: 'Raphael PAES',
+      email: 'raphael.paes@example.com',
       password: 'secure-password',
     };
 
@@ -62,7 +66,7 @@ describe('POST /users/register', () => {
   it('returns 400 when a required field is missing', async () => {
     const response = await request(createTestApp())
       .post('/users/register')
-      .send({ email: 'camille@example.com' });
+      .send({ email: 'raphael.paes@example.com' });
 
     expect(response.status).toBe(400);
   });
