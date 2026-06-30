@@ -11,6 +11,10 @@ class FakePasswordHasher implements PasswordHasher {
   async hash(password: string): Promise<string> {
     return `hashed:${password}`;
   }
+
+  async compare(password: string, passwordHash: string): Promise<boolean> {
+    return passwordHash === `hashed:${password}`;
+  }
 }
 
 function createRegisterUser() {
@@ -26,12 +30,12 @@ describe('RegisterUser', () => {
     const { registerUser, userRepository } = createRegisterUser();
 
     const user = await registerUser.execute({
-      name: 'Camille Dupont',
-      email: 'CAMILLE@EXAMPLE.COM',
+      name: 'Raphael PAES',
+      email: 'RAPHAEL.PAES@EXAMPLE.COM',
       password: 'secure-password',
     });
 
-    expect(user.email).toBe('camille@example.com');
+    expect(user.email).toBe('raphael.paes@example.com');
     expect(user.passwordHash).toBe('hashed:secure-password');
     expect(user.passwordHash).not.toBe('secure-password');
     expect(user.role).toBe(UserRole.VISITOR);
@@ -41,8 +45,8 @@ describe('RegisterUser', () => {
   it('rejects an email that is already in use', async () => {
     const { registerUser } = createRegisterUser();
     const input = {
-      name: 'Camille Dupont',
-      email: 'camille@example.com',
+      name: 'Raphael PAES',
+      email: 'raphael.paes@example.com',
       password: 'secure-password',
     };
 
@@ -58,8 +62,8 @@ describe('RegisterUser', () => {
 
     await expect(
       registerUser.execute({
-        name: 'Camille Dupont',
-        email: 'camille@example.com',
+        name: 'Raphael PAES',
+        email: 'raphael.paes@example.com',
         password: 'short',
       }),
     ).rejects.toThrow(WeakPasswordError);

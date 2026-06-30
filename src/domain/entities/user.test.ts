@@ -7,20 +7,20 @@ import { User, UserRole } from './user.js';
 describe('User', () => {
   it('creates a visitor and normalizes their data', () => {
     const user = User.create({
-      name: '  Camille Dupont  ',
-      email: '  CAMILLE@EXAMPLE.COM  ',
+      name: '  Raphael PAES  ',
+      email: '  RAPHAEL.PAES@EXAMPLE.COM  ',
       passwordHash: 'hashed-password',
     });
 
-    expect(user.name).toBe('Camille Dupont');
-    expect(user.email).toBe('camille@example.com');
+    expect(user.name).toBe('Raphael PAES');
+    expect(user.email).toBe('raphael.paes@example.com');
     expect(user.role).toBe(UserRole.VISITOR);
   });
 
   it('rejects an invalid email', () => {
     expect(() =>
       User.create({
-        name: 'Camille Dupont',
+        name: 'Raphael PAES',
         email: 'invalid-email',
         passwordHash: 'hashed-password',
       }),
@@ -31,7 +31,7 @@ describe('User', () => {
     expect(() =>
       User.create({
         name: 'C',
-        email: 'camille@example.com',
+        email: 'raphael.paes@example.com',
         passwordHash: 'hashed-password',
       }),
     ).toThrow(InvalidNameError);
